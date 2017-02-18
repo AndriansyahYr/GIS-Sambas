@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css" />
+        <link rel="stylesheet" type="text/css" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/label.css" />
+        <link rel="stylesheet" href="css/MarkerCluster.css" />
+        <link rel="stylesheet" href="css/MarkerCluster.Default.css" />
+        <script src="js/leaflet.js"></script>
+        <script src="js/leaflet-heat.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/OSMBuildings-Leaflet.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/label.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/leaflet.markercluster.js"></script>
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="data/json_tebas0.js"></script>
+        <script src="data/json_tebaskepadatan1.js"></script>
+        <script src="data/json_tebasnormal2.js"></script>
+        <script src="data/json_tebassedang3.js"></script>
+        <script src="data/json_tebasparah4.js"></script>
+        <script src="data/json_letak5.js"></script>
+        <script src="data/json_dc6.js"></script>
+        <script>
+        L.ImageOverlay.include({
+            getBounds: function () {
+                return this._bounds;
+            }
+        });
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:28, minZoom:1
+        }).fitBounds([[0.985069223142,109.016333327],[1.32190028392,109.675356653]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.addAttribution('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a>');
+        var feature_group = new L.featureGroup([]);
+        var bounds_group = new L.featureGroup([]);
+        var raster_group = new L.LayerGroup([]);
+        var initialOrder = new Array();
+        var layerOrder = new Array();
+        function stackLayers() {
+            for (index = 0; index < initialOrder.length; index++) {
+                map.removeLayer(initialOrder[index]);
+                map.addLayer(initialOrder[index]);
+            }
+        }
+        function restackLayers() {
+            for (index = 0; index < layerOrder.length; index++) {
+                layerOrder[index].bringToFront();
+            }
+        }
+        layerControl = L.control.layers({},{},{collapsed:false});
+        function geoJson2heat(geojson, weight) {
+          return geojson.features.map(function(feature) {
+            return [
+              feature.geometry.coordinates[1],
+              feature.geometry.coordinates[0],
+              feature.properties[weight]
+            ];
+          });
+        }
+        function pop_tebas0(feature, layer) {
+            var popupContent = '<table><tr><td colspan="2">' + (feature.properties['DESA'] !== null ? Autolinker.link(String(feature.properties['DESA'])) : '') + '</td></tr><tr><td colspan="2">' + (feature.properties['KECAMATAN'] !== null ? Autolinker.link(String(feature.properties['KECAMATAN'])) : '') + '</td></tr><tr><td colspan="2">' + (feature.properties['KABUPATEN'] !== null ? Autolinker.link(String(feature.properties['KABUPATEN'])) : '') + '</td></tr><tr><td colspan="2">' + (feature.properties['PROPINSI'] !== null ? Autolinker.link(String(feature.properties['PROPINSI'])) : '') + '</td></tr></table>';
+            layer.bindPopup(popupContent);
+        }
+
+        function doStyletebas0(feature) {
+            return {
+                weight: 1.04,
+                color: '#000000',
+                fillColor: '#c5f6b9',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                opacity: 1.0,
+                fillOpacity: 0.337254901961
+            };
+        }
+        var json_tebas0JSON = new L.geoJson(json_tebas0, {
+            onEachFeature: pop_tebas0,
+            style: doStyletebas0
+        });
+        layerOrder[layerOrder.length] = json_tebas0JSON;
+        bounds_group.addLayer(json_tebas0JSON);
+        initialOrder[initialOrder.length] = json_tebas0JSON;
+        feature_group.addLayer(json_tebas0JSON);
+        function pop_tebaskepadatan1(feature, layer) {
+            var popupContent = '<table><tr><td colspan="2">' + (feature.properties['DESA'] !== null ? Autolinker.link(String(feature.properties['DESA'])) : '') + '</td></tr><tr><td colspan="2">' + (feature.properties['KECAMATAN'] !== null ? Autolinker.link(String(feature.properties['KECAMATAN'])) : '') + '</td></tr><tr><td colspan="2">' + (feature.properties['KABUPATEN'] !== null ? Autolinker.link(String(feature.properties['KABUPATEN'])) : '') + '</td></tr><tr><td colspan="2">' + (feature.properties['PROPINSI'] !== null ? Autolinker.link(String(feature.properties['PROPINSI'])) : '') + '</td></tr><tr><td colspan="2">' + (feature.properties['density'] !== null ? Autolinker.link(String(feature.properties['density'])) : '') + '</td></tr><tr><td colspan="2">' + (feature.properties['id'] !== null ? Autolinker.link(String(feature.properties['id'])) : '') + '</td></tr></table>';
+            layer.bindPopup(popupContent);
+        }
+
+        function getColorKepadatan(d) {
+            return d > 251.0 ? '#5dade2' :
+                   d > 102.0  ? '#aed6f1' :
+                   d > 0.0  ? '#ebf5fb' :
+                              '#FFFFFF';
+        }
+
+        function doStyletebaskepadatan1(feature) {
+            return {
+                weight: 2,
+                color: '#000000',
+                opacity: 1,
+                dashArray: '',
+                fillOpacity: 0.9,
+                fillColor: getColorKepadatan(feature.properties.density)
+            };
+        }
+        var json_tebaskepadatan1JSON = new L.geoJson(json_tebaskepadatan1, {
+            onEachFeature: pop_tebaskepadatan1,
+            style: doStyletebaskepadatan1
+        });
+        layerOrder[layerOrder.length] = json_tebaskepadatan1JSON;
+        bounds_group.addLayer(json_tebaskepadatan1JSON);
+        initialOrder[initialOrder.length] = json_tebaskepadatan1JSON;
+        feature_group.addLayer(json_tebaskepadatan1JSON);
+        function pop_tebasnormal2(feature, layer) {
+            var popupContent = '<table><tr><td colspan="2">' + (feature.properties['id'] !== null ? Autolinker.link(String(feature.properties['id'])) : '') + '</td></tr><tr><td colspan="2">' + (feature.properties['name'] !== null ? Autolinker.link(String(feature.properties['name'])) : '') + '</td></tr></table>';
+            layer.bindPopup(popupContent);
+        }
+
+        function doStyletebasnormal2(feature) {
+            return {
+                weight: 1.04,
+                color: '#000000',
+                fillColor: '#0b8309',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                opacity: 1.0,
+                fillOpacity: 1.0
+            };
+        }
+        var json_tebasnormal2JSON = new L.geoJson(json_tebasnormal2, {
+            onEachFeature: pop_tebasnormal2,
+            style: doStyletebasnormal2
+        });
+        layerOrder[layerOrder.length] = json_tebasnormal2JSON;
+        bounds_group.addLayer(json_tebasnormal2JSON);
+        initialOrder[initialOrder.length] = json_tebasnormal2JSON;
+        feature_group.addLayer(json_tebasnormal2JSON);
+        function pop_tebassedang3(feature, layer) {
+            var popupContent = '<table><tr><td colspan="2">' + (feature.properties['id'] !== null ? Autolinker.link(String(feature.properties['id'])) : '') + '</td></tr><tr><td colspan="2">' + (feature.properties['name'] !== null ? Autolinker.link(String(feature.properties['name'])) : '') + '</td></tr></table>';
+            layer.bindPopup(popupContent);
+        }
+
+        function doStyletebassedang3(feature) {
+            return {
+                weight: 1.04,
+                color: '#000000',
+                fillColor: '#e2e50f',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                opacity: 1.0,
+                fillOpacity: 1.0
+            };
+        }
+        var json_tebassedang3JSON = new L.geoJson(json_tebassedang3, {
+            onEachFeature: pop_tebassedang3,
+            style: doStyletebassedang3
+        });
+        layerOrder[layerOrder.length] = json_tebassedang3JSON;
+        bounds_group.addLayer(json_tebassedang3JSON);
+        initialOrder[initialOrder.length] = json_tebassedang3JSON;
+        feature_group.addLayer(json_tebassedang3JSON);
+        function pop_tebasparah4(feature, layer) {
+            var popupContent = '<table><tr><td colspan="2">' + (feature.properties['id'] !== null ? Autolinker.link(String(feature.properties['id'])) : '') + '</td></tr><tr><td colspan="2">' + (feature.properties['name'] !== null ? Autolinker.link(String(feature.properties['name'])) : '') + '</td></tr></table>';
+            layer.bindPopup(popupContent);
+        }
+
+        function doStyletebasparah4(feature) {
+            return {
+                weight: 1.04,
+                color: '#000000',
+                fillColor: '#a30002',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                opacity: 1.0,
+                fillOpacity: 1.0
+            };
+        }
+        var json_tebasparah4JSON = new L.geoJson(json_tebasparah4, {
+            onEachFeature: pop_tebasparah4,
+            style: doStyletebasparah4
+        });
+        layerOrder[layerOrder.length] = json_tebasparah4JSON;
+        bounds_group.addLayer(json_tebasparah4JSON);
+        initialOrder[initialOrder.length] = json_tebasparah4JSON;
+        feature_group.addLayer(json_tebasparah4JSON);
+        function pop_letak5(feature, layer) {
+            var popupContent = '<table><tr><td colspan="2">' + (feature.properties['id'] !== null ? Autolinker.link(String(feature.properties['id'])) : '') + '</td></tr><tr><td colspan="2">' + (feature.properties['Nama'] !== null ? Autolinker.link(String(feature.properties['Nama'])) : '') + '</td></tr></table>';
+            layer.bindPopup(popupContent);
+        }
+
+        function doStyleletak5() {
+            return {
+                radius: 4.0,
+                fillColor: '#000000',
+                color: '#000000',
+                weight: 0.0,
+                opacity: 1.0,
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                fillOpacity: 1.0
+            }
+        }
+        function doPointToLayerletak5(feature, latlng) {
+            return L.circleMarker(latlng, doStyleletak5()).bindLabel((feature.properties['Nama'] !== null?String('<div style="color: #000000; font-size: 8pt; font-family: \'MS Shell Dlg 2\', sans-serif;">' + feature.properties['Nama']) + '</div>':''), {noHide: true, offset: [-0, -16]})
+        }
+        var json_letak5JSON = new L.geoJson(json_letak5, {
+            onEachFeature: pop_letak5, 
+            pointToLayer: doPointToLayerletak5
+            });
+        layerOrder[layerOrder.length] = json_letak5JSON;
+
+        bounds_group.addLayer(json_letak5JSON);
+        initialOrder[initialOrder.length] = json_letak5JSON;
+        feature_group.addLayer(json_letak5JSON);
+        function pop_dc6(feature, layer) {
+            var popupContent = '<table><tr><th scope="row">id</th><td>' + (feature.properties['id'] !== null ? Autolinker.link(String(feature.properties['id'])) : '') + '</td></tr><tr><td colspan="2">' + (feature.properties['desa'] !== null ? Autolinker.link(String(feature.properties['desa'])) : '') + '</td></tr><tr><td colspan="2">' + (feature.properties['density'] !== null ? Autolinker.link(String(feature.properties['density'])) : '') + '</td></tr></table>';
+            layer.bindPopup(popupContent);
+        }
+
+        function getColorDC(d) {
+            return d > 10.0 ? '#fb8c00  ' :
+                   d >= 1.0  ? '#ffcc80 ' :
+                   d >= 0.0  ? '#fff3e0 ' :
+                              '#FFFFFF';
+        }
+
+        function doStyledc6(feature) {
+            return {
+                weight: 2,
+                color: '#000000',
+                opacity: 1,
+                dashArray: '',
+                fillOpacity: 0.9,
+                fillColor: getColorDC(feature.properties.density)
+            };
+        }
+        var json_dc6JSON = new L.geoJson(json_dc6, {
+            onEachFeature: pop_dc6,
+            style: doStyledc6
+        });
+        layerOrder[layerOrder.length] = json_dc6JSON;
+        bounds_group.addLayer(json_dc6JSON);
+        initialOrder[initialOrder.length] = json_dc6JSON;
+        feature_group.addLayer(json_dc6JSON);
+        raster_group.addTo(map);
+        feature_group.addTo(map);
+        var baseMaps = {};
+        L.control.layers(baseMaps,{'<img src="legend/dc6.png" /> dc': json_dc6JSON,'<img src="legend/letak5.png" /> letak': json_letak5JSON,'<img src="legend/tebasparah4.png" /> tebas-parah': json_tebasparah4JSON,'<img src="legend/tebassedang3.png" /> tebas-sedang': json_tebassedang3JSON,'<img src="legend/tebasnormal2.png" /> tebas-normal': json_tebasnormal2JSON,'<img src="legend/tebaskepadatan1.png" /> tebas-kepadatan': json_tebaskepadatan1JSON,'<img src="legend/tebas0.png" /> tebas': json_tebas0JSON,},{collapsed:false}).addTo(map);
+        stackLayers();
+        map.on('overlayadd', restackLayers);
+        </script>
+    </body>
+</html>
